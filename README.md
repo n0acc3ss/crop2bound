@@ -8,13 +8,13 @@
 
 | Feature | Status |
 |---|:---:|
-| Crop to transparency bounds | ✅ |
-| Crop to color bounds (color trim) | ✅ |
-| Padding control | ✅ |
-| Output format (PNG / WebP / JPG / match) | ✅ |
-| **Share image TO app** (from Gallery, Files, etc.) | ✅ |
-| **Share result OUT** (Android native share sheet) | ✅ |
-| Download / ZIP | ✅ |
+| **Crop to transparency bounds** | ✅ |
+| **Crop to color bounds** _(color trim)_ | ✅ |
+| **Padding control** | ✅ |
+| **Output format select**<br>_(PNG / WebP / JPG / match input)_ | ✅ |
+| **Share image TO app**<br>_(from Gallery, Files, etc.)_ | ✅ |
+| **Share result OUT**<br>_(Android native share sheet)_ | ✅ |
+| **Download options:**<br>_per image / ZIP all processed images | ✅ |
 | AI background removal<br>_(optional, on-device)_ | ✅ |
 
 ---
