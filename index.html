@@ -3,883 +3,403 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
   <title>Crop2Bounds — Autocrop to Content Bounds</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
   <style>
+    /* ═════════════════════════════════════════════════════════════
+       VoidNeon — black canvas, neon-pink accents, glass panels
+       ═════════════════════════════════════════════════════════════ */
+    :root {
+      --bg:          #000000;
+      --bg-raise:    #08080b;
+      --panel:       rgba(14, 14, 19, 0.72);
+      --panel-solid: #0d0d12;
+      --line:        rgba(255, 45, 149, 0.20);
+      --line-soft:   rgba(255, 255, 255, 0.07);
+      --accent:      #ff2d95;
+      --accent-dim:  rgba(255, 45, 149, 0.13);
+      --accent-glow: rgba(255, 45, 149, 0.38);
+      --text:        #f4f2f6;
+      --muted:       #8b8896;
+      --faint:       #575462;
+      --ok:          #3ce6a6;
+      --warn:        #ffc857;
+      --body-font:   'Anuphan', system-ui, sans-serif;
+      --mono-font:   'JetBrains Mono', ui-monospace, monospace;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { background: var(--bg); }
+
     body {
-      font-family: 'Barlow', system-ui, sans-serif;
-      background: #0c0f14;
-      color: #e0e0e0;
+      font-family: var(--body-font);
+      background:
+        radial-gradient(ellipse 70% 40% at 50% -8%, rgba(255,45,149,0.10), transparent 70%),
+        var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2rem;
+      gap: 1.6rem;
+      padding-bottom: 3rem;
+      -webkit-font-smoothing: antialiased;
     }
+
+    ::selection { background: var(--accent); color: #000; }
 
     /* ── HERO ── */
     .c2b-hero {
       width: 100%;
-      background: #141820;
-      background-image: radial-gradient(ellipse 90% 70% at 50% 40%, #1c2232 0%, #0c0f14 100%);
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3.5rem 2rem 3rem;
+      padding: 2.4rem 1.5rem 2rem;
+      background:
+        radial-gradient(ellipse 55% 90% at 50% 30%, rgba(255,45,149,0.16), transparent 70%),
+        linear-gradient(180deg, #0b0710 0%, #000000 100%);
+      border-bottom: 1px solid var(--line);
     }
-
     .c2b-hero::before {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-conic-gradient(#ffffff05 0% 25%, transparent 0% 50%) 0 0 / 14px 14px;
-      pointer-events: none;
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,45,149,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,45,149,0.045) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent 92%);
+      -webkit-mask-image: linear-gradient(to bottom, black, transparent 92%);
     }
-
     .c2b-hero::after {
       content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 60px;
-      background: linear-gradient(to bottom, transparent, #0c0f14);
+      position: absolute; bottom: 0; left: 0; right: 0; height: 70px;
+      background: linear-gradient(to bottom, transparent, #000000);
       pointer-events: none;
     }
-
-    .c2b-icon-wrap {
-      position: relative;
-      width: 180px;
-      height: 180px;
-      margin-bottom: 1.2rem;
-    }
-
+    .c2b-icon-wrap { position: relative; margin-bottom: 1rem; filter: drop-shadow(0 0 16px var(--accent-glow)); }
     .c2b-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: clamp(2.8rem, 9vw, 5.5rem);
-      font-weight: 900;
-      letter-spacing: 0.04em;
-      color: #29c2f5;
-      text-shadow: 0 0 80px rgba(41,194,245,0.3), 0 2px 0 rgba(0,0,0,0.7);
-      margin: 0 0 0.55rem;
+      position: relative;
+      font-family: var(--mono-font);
+      font-size: clamp(2rem, 8vw, 4.4rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      text-shadow: 0 0 38px var(--accent-glow);
+      margin-bottom: .5rem;
       line-height: 1;
       text-transform: uppercase;
     }
-
     .c2b-subtitle {
-      font-family: 'Barlow', sans-serif;
-      font-size: clamp(0.65rem, 1.8vw, 0.88rem);
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      color: #8a94a8;
+      position: relative;
+      font-size: clamp(.72rem, 1.8vw, .86rem);
+      letter-spacing: .12em;
+      color: var(--muted);
       text-transform: uppercase;
       text-align: center;
-      line-height: 1.8;
+      line-height: 1.9;
     }
-
     .c2b-version {
-      display: inline-block;
-      margin-top: 0.85rem;
-      font-size: 0.68rem;
-      font-family: 'Barlow', sans-serif;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      color: #2a3448;
-      border: 1px solid #1e2a3a;
-      border-radius: 5px;
-      padding: 0.18em 0.6em;
-      text-transform: uppercase;
-      user-select: none;
+      position: relative;
+      display: inline-block; margin-top: .9rem;
+      font-family: var(--mono-font); font-size: .64rem;
+      letter-spacing: .12em; color: var(--faint);
+      border: 1px solid var(--line); border-radius: 5px;
+      padding: .2em .7em; text-transform: uppercase; user-select: none;
     }
 
-    /* ── TOOL SECTION ── */
-    .tool-wrap {
-      width: 100%;
-      max-width: 720px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.4rem;
-      padding: 0 1rem 1rem;
-    }
+    /* ── LAYOUT / GLASS PANELS ── */
+    .tool-wrap { width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 1.35rem; padding: 0 1rem; }
 
-    #drop-zone {
-      width: 100%;
-      border: 2px dashed #2e3545;
+    .step {
+      background: var(--panel);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--line-soft);
       border-radius: 14px;
-      padding: 3rem 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-      background: #141820;
-      outline: none;
+      padding: 1.15rem 1.25rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.035);
     }
+    .step:focus-within { border-color: var(--line); }
+    .step-head { display: flex; align-items: baseline; gap: .7rem; margin-bottom: .95rem; }
+    .step-num {
+      font-family: var(--mono-font); font-size: .72rem; font-weight: 700;
+      color: var(--accent); letter-spacing: .08em;
+    }
+    .step-title {
+      font-family: var(--mono-font); font-size: .76rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: .16em; color: var(--text);
+    }
+    .step-note { margin-left: auto; font-size: .72rem; color: var(--faint); }
 
+    /* ── 01 DROP ZONE ── */
+    #drop-zone {
+      border: 1px dashed rgba(255,45,149,.38);
+      border-radius: 11px; padding: 1.7rem 1.2rem;
+      text-align: center; cursor: pointer; outline: none;
+      transition: border-color .18s, background .18s, box-shadow .18s;
+      background: rgba(255,45,149,.025);
+    }
     #drop-zone:hover, #drop-zone:focus-visible {
-      border-color: #3d5080;
-      background: #161c28;
-      box-shadow: 0 0 0 3px rgba(41,194,245,0.18);
+      border-color: var(--accent); background: rgba(255,45,149,.07);
+      box-shadow: 0 0 0 3px var(--accent-dim), 0 0 26px rgba(255,45,149,.10) inset;
     }
-
-    #drop-zone.drag-over {
-      border-color: #29c2f5;
-      background: #101828;
-    }
-
-    #drop-zone .drop-icon {
-      font-size: 2.5rem;
-      display: block;
-      margin-bottom: 0.6rem;
-    }
-
-    #drop-zone p {
-      color: #5a6478;
-      font-size: 0.9rem;
-      margin-top: 0.4rem;
-    }
-
+    #drop-zone.drag-over { border-color: var(--accent); background: rgba(255,45,149,.12); }
+    #drop-zone .drop-icon { font-size: 1.9rem; display: block; margin-bottom: .35rem; }
+    #drop-zone p { font-size: .92rem; color: var(--text); }
     #drop-zone .drop-hint {
-      display: inline-block;
-      margin-top: 0.8rem;
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #29c2f5;
-      opacity: 0.7;
+      display: block; margin-top: .55rem;
+      font-family: var(--mono-font); font-size: .66rem;
+      letter-spacing: .06em; color: var(--accent); opacity: .72;
     }
-
     #file-input { display: none; }
 
-    /* ── OPTIONS PANEL ── */
-    .options-panel {
-      width: 100%;
-      background: #141820;
-      border: 1px solid #1e2435;
-      border-radius: 12px;
-      padding: 1rem 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    /* ── STAGED INPUT LIST ── */
+    #input-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: .7rem; margin-top: .9rem; }
+    .input-item {
+      position: relative; border: 1px solid var(--line-soft); border-radius: 9px;
+      background: rgba(0,0,0,.55); overflow: hidden;
     }
-
-    .options-row {
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      flex-wrap: wrap;
+    .input-item img { width: 100%; height: 82px; object-fit: cover; display: block; background: #111; }
+    .input-meta { padding: .45rem .5rem; }
+    .input-name {
+      display: block; font-size: .7rem; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
-    .options-row + .options-row {
-      padding-top: 0.9rem;
-      border-top: 1px solid #1e2435;
+    .input-size { display: block; font-family: var(--mono-font); font-size: .6rem; color: var(--faint); margin-top: .15rem; }
+    .input-remove {
+      position: absolute; top: 5px; right: 5px;
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 1px solid rgba(255,45,149,.5); background: rgba(0,0,0,.78);
+      color: var(--accent); font-family: var(--mono-font); font-size: .8rem;
+      line-height: 1; cursor: pointer;
     }
+    .input-remove:hover { background: var(--accent); color: #000; }
+    .empty-hint { font-size: .78rem; color: var(--faint); margin-top: .85rem; text-align: center; }
 
+    /* ── 02 OPTIONS ── */
+    .options-panel { display: flex; flex-direction: column; gap: .85rem; }
+    .options-row { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+    .options-row + .options-row { padding-top: .85rem; border-top: 1px solid var(--line-soft); }
     .opt-label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #4a5468;
-      flex: 0 0 100%;
-      margin-bottom: -0.3rem;
+      font-family: var(--mono-font); font-size: .68rem; font-weight: 500;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--muted); flex: 0 0 100%;
     }
-
-    label {
-      font-size: 0.88rem;
-      color: #7a8494;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    input[type=number] {
-      width: 64px;
-      background: #1a1e28;
-      border: 1px solid #2e3545;
-      border-radius: 6px;
-      color: #e0e0e0;
-      padding: 0.3rem 0.5rem;
-      font-size: 0.88rem;
-    }
-
-    input[type=range] {
-      accent-color: #29c2f5;
-      cursor: pointer;
-    }
-
-    input[type=checkbox] { accent-color: #29c2f5; cursor: pointer; }
-
-    input[type=color] {
-      width: 28px;
-      height: 28px;
-      border: 1px solid #2e3545;
-      border-radius: 5px;
-      background: none;
-      padding: 1px;
-      cursor: pointer;
-    }
-
-    .range-val {
-      font-size: 0.82rem;
-      color: #29c2f5;
-      min-width: 2.2em;
-      text-align: right;
-    }
-
-    /* ── Mode tabs ── */
-    .mode-tabs {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .mode-tab {
-      background: #1a1e28;
-      border: 1px solid #2e3545;
-      border-radius: 7px;
-      color: #5a6478;
-      font-size: 0.8rem;
-      font-family: 'Barlow', sans-serif;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      padding: 0.32rem 0.9rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .mode-tab.active {
-      background: #29c2f5;
-      border-color: #29c2f5;
-      color: #06101a;
-    }
-
-    .mode-tab:hover:not(.active) {
-      border-color: #3d5080;
-      color: #9aa4ba;
-    }
-
-    /* Secondary tab — for Color trim (advanced use) */
-    .mode-tab.secondary {
-      font-size: 0.74rem;
-      padding: 0.25rem 0.7rem;
-      border-style: dashed;
-      color: #404858;
-    }
-    .mode-tab.secondary.active {
-      background: #1e3a50;
-      border-color: #29c2f5;
-      border-style: solid;
-      color: #29c2f5;
-    }
-    .mode-tab.secondary:hover:not(.active) {
-      border-color: #3d5080;
-      color: #7a8494;
-    }
-
-    /* Color-mode extra controls */
-    #color-opts {
-      display: none;
-      align-items: center;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-    }
-    #color-opts.visible { display: flex; }
-
-    /* ── BGR controls ── */
     .opt-label-badge {
-      display: inline-block;
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      background: linear-gradient(135deg, #1a55b8, #29c2f5);
-      color: #fff;
-      border-radius: 4px;
-      padding: 0.05em 0.4em;
-      vertical-align: middle;
-      margin-left: 0.3em;
-      position: relative;
-      top: -1px;
+      color: var(--accent); border: 1px solid var(--line); border-radius: 3px;
+      padding: 0 .3em; margin-left: .3em; font-size: .58rem;
     }
+    label { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: .4rem; cursor: pointer; user-select: none; }
 
-    .bgr-controls {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      position: relative;
-      flex-wrap: wrap;
+    .mode-tabs { display: inline-flex; gap: .35rem; flex-wrap: wrap; }
+    .mode-tab {
+      font-family: var(--body-font); font-size: .8rem; font-weight: 600;
+      padding: .42rem .85rem; border-radius: 7px; cursor: pointer;
+      background: rgba(255,255,255,.025); color: var(--muted);
+      border: 1px solid var(--line-soft); transition: all .16s;
     }
+    .mode-tab:hover { border-color: var(--line); color: var(--text); }
+    .mode-tab.active {
+      background: var(--accent-dim); border-color: var(--accent);
+      color: var(--accent); box-shadow: 0 0 14px rgba(255,45,149,.12) inset;
+    }
+    .mode-tab.secondary { opacity: .9; }
 
-    .bgr-state {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
+    input[type="color"] {
+      width: 34px; height: 30px; padding: 2px; cursor: pointer;
+      background: rgba(0,0,0,.5); border: 1px solid var(--line-soft); border-radius: 6px;
     }
+    input[type="range"] { accent-color: var(--accent); cursor: pointer; }
+    input[type="number"] {
+      width: 66px; padding: .32rem .45rem;
+      background: rgba(0,0,0,.5); border: 1px solid var(--line-soft);
+      border-radius: 6px; color: var(--text); font-family: var(--mono-font); font-size: .74rem;
+    }
+    input:disabled { opacity: .38; cursor: not-allowed; }
+    .range-val { font-family: var(--mono-font); font-size: .7rem; color: var(--accent); min-width: 2.2ch; }
+    #color-opts { display: none; align-items: center; gap: .7rem; flex-wrap: wrap; }
+    #color-opts.visible { display: flex; }
+    #fmt-note { font-size: .7rem; color: var(--warn); }
+
+    /* ── BG REMOVAL CONTROLS ── */
+    .bgr-controls { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+    .bgr-state { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
     .bgr-state[hidden] { display: none; }
-
-    .bgr-msg {
-      font-size: 0.82rem;
-      color: #5a6478;
-      letter-spacing: 0.03em;
-    }
-
-    .bgr-ready-dot { color: #4adf8a; font-size: 0.7rem; }
-    .bgr-err-dot   { color: #e05555; font-size: 0.82rem; }
-
-    /* Progress bar (shown during model download) */
-    .bgr-progress-wrap {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+    .bgr-msg { font-size: .76rem; color: var(--muted); }
+    .bgr-ready-dot { color: var(--ok); font-size: .65rem; }
+    .bgr-err-dot { color: #ff6b6b; }
+    .bgr-progress-wrap { display: flex; align-items: center; gap: .5rem; }
     .bgr-progress-track {
-      width: 100px;
-      height: 4px;
-      background: #1e2435;
-      border-radius: 2px;
-      overflow: hidden;
+      width: 110px; height: 5px; border-radius: 3px;
+      background: rgba(255,255,255,.08); overflow: hidden;
     }
-    .bgr-progress-bar {
-      height: 100%;
-      background: #29c2f5;
-      border-radius: 2px;
-      width: 0%;
-      transition: width 0.25s ease;
+    .bgr-progress-bar { height: 100%; width: 0; background: var(--accent); box-shadow: 0 0 10px var(--accent); transition: width .2s; }
+    .bgr-progress-text { font-family: var(--mono-font); font-size: .62rem; color: var(--muted); }
+    .btn-bgr-load, .btn-bgr-info, .btn-bgr-retry {
+      font-family: var(--mono-font); font-size: .72rem; cursor: pointer;
+      padding: .38rem .7rem; border-radius: 7px;
+      background: rgba(255,45,149,.05); color: var(--accent);
+      border: 1px solid var(--line); transition: all .16s;
     }
-    .bgr-progress-text {
-      font-size: 0.75rem;
-      color: #4a5468;
-      min-width: 88px;
-      letter-spacing: 0.03em;
+    .btn-bgr-load:hover, .btn-bgr-retry:hover, .btn-bgr-info:hover {
+      background: var(--accent); color: #000; border-color: var(--accent);
     }
-
-    /* Load / retry button */
-    .btn-bgr-load {
-      background: #1a1e28;
-      border: 1px solid #2e3545;
-      border-radius: 7px;
-      color: #9aa4ba;
-      font-size: 0.8rem;
-      font-family: 'Barlow', sans-serif;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      padding: 0.35rem 0.85rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn-bgr-load:hover { border-color: #29c2f5; color: #29c2f5; }
-
-    /* ℹ button */
-    .btn-bgr-info {
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      border: 1px solid #2e3545;
-      background: #1a1e28;
-      color: #4a5468;
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-      line-height: 1;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-      flex-shrink: 0;
-    }
-    .btn-bgr-info:hover { border-color: #29c2f5; color: #29c2f5; }
-
-    /* Tooltip */
+    .btn-bgr-info { width: 30px; padding: .38rem 0; text-align: center; }
     .bgr-tooltip {
-      position: absolute;
-      top: calc(100% + 10px);
-      left: 0;
-      z-index: 100;
-      width: min(360px, 90vw);
-      background: #1a1e2e;
-      border: 1px solid #2e3a55;
-      border-radius: 10px;
-      padding: 1rem 1rem 0.85rem;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.55);
-      font-size: 0.82rem;
-      color: #8a94a8;
-      line-height: 1.6;
+      position: relative; margin-top: .75rem; padding: .85rem 1rem;
+      border: 1px solid var(--line); border-radius: 9px;
+      background: rgba(255,45,149,.045); font-size: .78rem; color: var(--muted); line-height: 1.65;
     }
-
-    .bgr-tooltip strong {
-      display: block;
-      color: #c8d0e0;
-      font-size: 0.85rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .bgr-tooltip p + p { margin-top: 0.5rem; }
-
+    .bgr-tooltip[hidden] { display: none; }
+    .bgr-tooltip strong { color: var(--accent); }
+    .bgr-tooltip code { font-family: var(--mono-font); font-size: .72rem; color: var(--text); }
     .bgr-tooltip-close {
-      position: absolute;
-      top: 0.55rem; right: 0.65rem;
-      background: none;
-      border: none;
-      color: #4a5468;
-      cursor: pointer;
-      font-size: 0.78rem;
-      line-height: 1;
-      padding: 0.1rem 0.3rem;
-      border-radius: 4px;
-      transition: color 0.15s;
+      position: absolute; top: .4rem; right: .5rem;
+      background: none; border: 0; color: var(--muted); cursor: pointer;
     }
-    .bgr-tooltip-close:hover { color: #9aa4ba; }
 
-    /* global status */
+    /* ── 03 PROCESS BUTTON ── */
+    .process-row { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+    #btn-process {
+      flex: 1 1 240px;
+      font-family: var(--mono-font); font-size: .88rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: .85rem 1.2rem; border-radius: 10px; cursor: pointer;
+      color: #000; border: 1px solid var(--accent);
+      background: linear-gradient(135deg, #ff5bad, #ff2d95);
+      box-shadow: 0 0 22px rgba(255,45,149,.28), inset 0 1px 0 rgba(255,255,255,.3);
+      transition: transform .14s, box-shadow .14s, filter .14s;
+    }
+    #btn-process:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 34px rgba(255,45,149,.45); }
+    #btn-process:active:not(:disabled) { transform: translateY(0); }
+    #btn-process:disabled { filter: grayscale(.8); opacity: .38; cursor: not-allowed; box-shadow: none; }
+    #dirty-hint { font-size: .72rem; color: var(--warn); display: none; }
+    #dirty-hint.visible { display: block; }
+
+    /* ── SHARE BANNER / STATUS ── */
+    #share-banner {
+      display: none; width: 100%; max-width: 780px; padding: 0 1rem;
+    }
+    #share-banner .banner-inner {
+      background: rgba(60,230,166,.06); border: 1px solid rgba(60,230,166,.3);
+      border-radius: 10px; padding: .65rem .9rem; font-size: .8rem; color: var(--ok);
+    }
     #status {
-      font-size: 0.82rem;
-      color: #4a5468;
-      min-height: 1.2em;
-      letter-spacing: 0.04em;
-      text-align: center;
+      font-family: var(--mono-font); font-size: .72rem; color: var(--muted);
+      min-height: 1.2em; text-align: center;
     }
 
-    /* ── TOOLBAR (Download All) ── */
-    #toolbar {
-      display: none;
-      width: 100%;
-      max-width: 920px;
-      padding: 0 1rem;
-      justify-content: flex-end;
-      gap: 0.7rem;
-    }
-
+    /* ── TOOLBAR / OUTPUT ── */
+    #toolbar { display: none; gap: .6rem; flex-wrap: wrap; justify-content: center; }
     #toolbar.visible { display: flex; }
-
     .btn-toolbar {
-      background: #1a1e28;
-      border: 1px solid #2e3545;
-      border-radius: 8px;
-      color: #9aa4ba;
-      font-size: 0.82rem;
-      font-family: 'Barlow', sans-serif;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      padding: 0.45rem 1.1rem;
-      cursor: pointer;
-      transition: all 0.15s;
+      font-family: var(--mono-font); font-size: .74rem; cursor: pointer;
+      padding: .5rem .9rem; border-radius: 8px;
+      background: rgba(255,255,255,.03); border: 1px solid var(--line-soft); color: var(--muted);
+      transition: all .16s;
     }
+    .btn-toolbar:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    #btn-toolbar-clear:hover:not(:disabled) { border-color: #ff6b6b; color: #ff6b6b; }
+    .btn-toolbar:disabled { opacity: .35; cursor: not-allowed; }
+    /* Keep step 01 the only thing on screen until an image is actually added. */
+    .tool-wrap[data-stage="empty"] #config-step,
+    .tool-wrap[data-stage="empty"] #process-step { display: none; }
 
-    .btn-toolbar:hover {
-      border-color: #29c2f5;
-      color: #29c2f5;
+    .output-section { width: 100%; max-width: 780px; padding: 0 1rem; display: flex; flex-direction: column; gap: .8rem; }
+    .output-head {
+      display: none; align-items: baseline; gap: .7rem;
+      font-family: var(--mono-font); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); padding: .2rem .3rem;
     }
-
-    /* ── RESULTS ── */
-    #results {
-      width: 100%;
-      max-width: 920px;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      padding: 0 1rem 3rem;
-    }
+    .output-head.visible { display: flex; }
+    .output-head .step-num { font-size: .7rem; }
+    #results { display: flex; flex-direction: column; gap: .9rem; }
 
     .result-card {
-      background: #141820;
-      border: 1px solid #1e2435;
-      border-radius: 14px;
-      overflow: hidden;
+      background: var(--panel); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--line-soft); border-radius: 13px; padding: 1rem;
+      box-shadow: 0 10px 34px rgba(0,0,0,.5);
     }
-
-    .result-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.8rem 1.1rem;
-      background: #181e2c;
-      border-bottom: 1px solid #1e2435;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-
-    .filename-block {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-
-    .result-header .filename {
-      font-size: 0.83rem;
-      color: #9aa4ba;
-      word-break: break-all;
-    }
-
-    /* Output filename — updates live when format changes */
-    .out-name {
-      font-size: 0.72rem;
-      color: #354055;
-      word-break: break-all;
-    }
-    .out-name .out-arrow { color: #2a3448; margin-right: 0.2em; }
-
-    .result-header .meta {
-      font-size: 0.76rem;
-      color: #404858;
-      white-space: nowrap;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 0.45rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
+    .result-card:hover { border-color: var(--line); }
+    .result-header { display: flex; flex-direction: column; gap: .45rem; margin-bottom: .8rem; }
+    .filename-block { display: flex; flex-direction: column; gap: .12rem; }
+    .filename { font-size: .86rem; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+    .out-name { font-family: var(--mono-font); font-size: .68rem; color: var(--accent); overflow-wrap: anywhere; }
+    .out-arrow { color: var(--faint); margin-right: .35rem; }
+    .meta { font-family: var(--mono-font); font-size: .64rem; color: var(--faint); }
+    .dim-out { color: var(--muted); }
+    .card-actions { display: flex; gap: .45rem; flex-wrap: wrap; margin-top: .15rem; }
     .btn-action {
-      border: 1px solid #2e3545;
-      border-radius: 7px;
-      padding: 0.35rem 0.8rem;
-      font-size: 0.8rem;
-      font-weight: 600;
-      font-family: 'Barlow', sans-serif;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
-      letter-spacing: 0.02em;
-      background: #1a1e28;
-      color: #7a8494;
+      font-family: var(--body-font); font-size: .76rem; font-weight: 600;
+      padding: .36rem .75rem; border-radius: 7px; cursor: pointer;
+      background: rgba(255,255,255,.03); border: 1px solid var(--line-soft); color: var(--muted);
+      transition: all .15s;
     }
-
-    .btn-action:hover { border-color: #3d5080; color: #9aa4ba; }
-    .btn-action:active { transform: scale(0.97); }
+    .btn-action:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
     .btn-action.primary {
-      background: #29c2f5;
-      border-color: #29c2f5;
-      color: #06101a;
+      background: var(--accent-dim); border-color: var(--accent); color: var(--accent);
     }
-    .btn-action.primary:hover { background: #45cefc; border-color: #45cefc; }
-    .btn-action.copied  { background: #1e3a2a; border-color: #2a7a4a; color: #4adf8a; }
-    .btn-action.danger  { border-color: #3a2020; color: #7a4444; }
-    .btn-action.danger:hover { border-color: #e05555; color: #e05555; }
-    .btn-action.running { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
-    .btn-action:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    .btn-action.primary:hover { background: var(--accent); color: #000; }
+    .btn-action.running { opacity: .6; cursor: progress; }
+    .btn-card-bgr:not(:disabled) { color: var(--ok); border-color: rgba(60,230,166,.35); }
 
-    /* ── Per-card reprocess panel ── */
-    .reprocess-bar {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.6rem 1.1rem;
-      background: #111520;
-      border-top: 1px solid #1e2435;
-      flex-wrap: wrap;
-    }
-
-    .reprocess-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #354055;
-      margin-right: 0.2rem;
-    }
-
-    .reprocess-sep {
-      width: 1px;
-      height: 18px;
-      background: #1e2435;
-      margin: 0 0.2rem;
-    }
-
-    /* Per-card color picker + tolerance */
-    .card-color-wrap {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .card-color-wrap label {
-      font-size: 0.78rem;
-      color: #4a5468;
-      gap: 0.3rem;
-    }
-
-    .card-tol-wrap {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.78rem;
-      color: #4a5468;
-    }
-
-    .card-tol-wrap input[type=range] { width: 70px; }
-    .card-tol-val { font-size: 0.78rem; color: #29c2f5; min-width: 1.8em; }
-
-    .preview-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: #1e2435;
-    }
-
+    .preview-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .7rem; }
     .preview-box {
-      background: #0e1118;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .preview-box span {
-      font-size: 0.72rem;
-      color: #3a4458;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .preview-box img {
-      max-width: 100%;
-      max-height: 260px;
-      object-fit: contain;
+      border: 1px solid var(--line-soft); border-radius: 9px; overflow: hidden;
+      background-color: #0a0a0d;
       background-image:
-        linear-gradient(45deg, #1e2435 25%, transparent 25%),
-        linear-gradient(-45deg, #1e2435 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #1e2435 75%),
-        linear-gradient(-45deg, transparent 75%, #1e2435 75%);
-      background-size: 16px 16px;
-      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
-      border-radius: 5px;
+        linear-gradient(45deg, #16161c 25%, transparent 25%, transparent 75%, #16161c 75%),
+        linear-gradient(45deg, #16161c 25%, transparent 25%, transparent 75%, #16161c 75%);
+      background-size: 16px 16px; background-position: 0 0, 8px 8px;
     }
-
-    /* processing overlay on card */
-    .card-processing {
-      padding: 2rem;
-      text-align: center;
-      font-size: 0.84rem;
-      color: #4a5468;
-      letter-spacing: 0.06em;
+    .preview-box > span {
+      display: block; font-family: var(--mono-font); font-size: .6rem;
+      text-transform: uppercase; letter-spacing: .12em; color: var(--faint);
+      padding: .35rem .55rem; border-bottom: 1px solid var(--line-soft); background: rgba(0,0,0,.6);
     }
+    .preview-box img { display: block; width: 100%; max-height: 280px; object-fit: contain; }
 
-    .error-msg {
-      color: #e05555;
-      font-size: 0.84rem;
-      padding: 1rem;
+    .reprocess-bar {
+      display: flex; align-items: center; gap: .65rem; flex-wrap: wrap;
+      margin-top: .8rem; padding-top: .75rem; border-top: 1px solid var(--line-soft);
     }
+    .reprocess-label {
+      font-family: var(--mono-font); font-size: .62rem; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--faint);
+    }
+    .card-color-wrap label, .card-tol-wrap { font-size: .72rem; color: var(--muted); }
+    .card-tol-wrap input[type="range"] { width: 90px; }
+    .card-tol-val { font-family: var(--mono-font); font-size: .66rem; color: var(--accent); }
+    .reprocess-sep { width: 1px; height: 20px; background: var(--line-soft); }
 
-    /* spinner */
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .card-processing, .card-error {
+      display: flex; align-items: center; gap: .55rem;
+      font-size: .8rem; color: var(--muted); padding: .5rem 0;
+    }
+    .card-error { color: #ff6b6b; }
     .spinner {
-      display: inline-block;
-      width: 1em; height: 1em;
-      border: 2px solid #29c2f530;
-      border-top-color: #29c2f5;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 0.5em;
+      width: 13px; height: 13px; border-radius: 50%; display: inline-block;
+      border: 2px solid rgba(255,45,149,.25); border-top-color: var(--accent);
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    canvas#work-canvas { display: none; }
+
+    @media (max-width: 520px) {
+      .step { padding: .95rem; }
+      #drop-zone { padding: 1.3rem .8rem; }
+      .result-card { padding: .8rem; }
     }
   </style>
-</head>
-<body>
 
-  <!-- ── HERO BANNER ── -->
-  <header class="c2b-hero">
-    <div class="c2b-icon-wrap">
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="180" height="180" aria-label="Crop2Bounds icon">
-        <defs>
-          <pattern id="checker" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
-            <rect width="7" height="7" fill="#2a2e3e"/>
-            <rect x="7" y="0" width="7" height="7" fill="#1a1e2c"/>
-            <rect x="0" y="7" width="7" height="7" fill="#1a1e2c"/>
-            <rect x="7" y="7" width="7" height="7" fill="#2a2e3e"/>
-          </pattern>
-          <linearGradient id="metalFace" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stop-color="#e8ecf4"/>
-            <stop offset="28%"  stop-color="#c4cad8"/>
-            <stop offset="62%"  stop-color="#8e96ac"/>
-            <stop offset="100%" stop-color="#666e82"/>
-          </linearGradient>
-          <linearGradient id="metalDepthR" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stop-color="#6e7688"/>
-            <stop offset="100%" stop-color="#4a5060"/>
-          </linearGradient>
-          <linearGradient id="metalDepthB" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stop-color="#5a6072"/>
-            <stop offset="100%" stop-color="#3c4050"/>
-          </linearGradient>
-          <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%"   stop-color="#3a80e2"/>
-            <stop offset="100%" stop-color="#1a55b8"/>
-          </linearGradient>
-          <linearGradient id="innerRing" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%"   stop-color="#9aa4b8"/>
-            <stop offset="50%"  stop-color="#bcc4d4"/>
-            <stop offset="100%" stop-color="#7a8496"/>
-          </linearGradient>
-          <filter id="frameShad">
-            <feDropShadow dx="4" dy="6" stdDeviation="9" flood-color="#000" flood-opacity="0.75"/>
-          </filter>
-          <filter id="arrowShad">
-            <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.55"/>
-          </filter>
-        </defs>
-
-        <rect x="62" y="62" width="76" height="76" fill="url(#checker)"/>
-        <rect x="62" y="70" width="76" height="68" fill="url(#blueGrad)"/>
-        <polygon points="50,148 58,156 150,156 142,148" fill="url(#metalDepthB)"/>
-        <polygon points="142,58 150,50 150,156 142,148" fill="url(#metalDepthR)"/>
-        <rect x="50" y="50" width="92" height="98" rx="2" fill="url(#metalFace)" filter="url(#frameShad)"/>
-        <rect x="62" y="62" width="68" height="74" fill="#0c1018"/>
-        <rect x="62" y="62" width="68" height="74" rx="1" fill="none" stroke="url(#innerRing)" stroke-width="3"/>
-        <rect x="50" y="50" width="92" height="2.5" rx="1" fill="#f2f4f8" opacity="0.7"/>
-        <rect x="50" y="50" width="2.5" height="98" rx="1" fill="#eaecf2" opacity="0.5"/>
-        <rect x="136" y="136" width="22" height="9" rx="2" fill="url(#metalFace)"/>
-        <rect x="136" y="145" width="22" height="3" rx="1" fill="url(#metalDepthB)"/>
-        <g filter="url(#arrowShad)">
-          <line x1="100" y1="18" x2="100" y2="42" stroke="#ccd4e4" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="93,37 100,50 107,37" fill="#ccd4e4"/>
-          <line x1="100" y1="158" x2="100" y2="182" stroke="#ccd4e4" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="93,163 100,150 107,163" fill="#ccd4e4"/>
-          <line x1="16" y1="100" x2="42" y2="100" stroke="#ccd4e4" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="37,93 50,100 37,107" fill="#ccd4e4"/>
-          <line x1="158" y1="100" x2="184" y2="100" stroke="#ccd4e4" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="163,93 150,100 163,107" fill="#ccd4e4"/>
-        </g>
-      </svg>
-    </div>
-
-    <h1 class="c2b-title">CROP2BOUNDS</h1>
-    <p class="c2b-subtitle">
-      Free, Simple, Private. Your files stay on your device.<br>
-      Works directly in your browser.
-    </p>
-    <span class="c2b-version">v1.1</span>
-  </header>
-
-  <!-- ── TOOL ── -->
-  <div class="tool-wrap">
-
-    <!-- Drop Zone -->
-    <div id="drop-zone" role="button" tabindex="0" aria-label="Drop PNG or WebP images here, or press Enter to browse">
-      <span class="drop-icon" aria-hidden="true">🖼️</span>
-      <p>Drop images here, or click to browse</p>
-      <span class="drop-hint">PNG · WebP · JPG · GIF · BMP · TIFF · AVIF · Multiple files</span>
-      <input type="file" id="file-input" accept=".png,.webp,.jpg,.jpeg,.gif,.bmp,.tiff,.tif,.avif,image/*" multiple />
-    </div>
-
-    <!-- Options Panel -->
-    <div class="options-panel" role="group" aria-label="Processing options">
-
-      <!-- Crop mode row -->
-      <div class="options-row">
-        <span class="opt-label">Crop Mode</span>
-        <div class="mode-tabs" role="group" aria-label="Crop mode">
-          <button class="mode-tab active" id="tab-alpha" aria-pressed="true">Transparency</button>
-          <button class="mode-tab secondary" id="tab-color" aria-pressed="false" title="Trim a specific background colour — useful when image has no alpha channel">Color trim</button>
-        </div>
-        <!-- Color-mode extras (shown when color tab active) -->
-        <div id="color-opts" aria-hidden="true">
-          <label for="trim-color">Color</label>
-          <input type="color" id="trim-color" value="#ffffff" title="Background color to trim" />
-          <label for="trim-tolerance">Tolerance</label>
-          <input type="range" id="trim-tolerance" min="0" max="128" value="20" style="width:90px" />
-          <span class="range-val" id="tol-val" aria-live="polite">20</span>
-        </div>
-      </div>
-
-      <!-- Padding row -->
-      <div class="options-row">
-        <span class="opt-label">Padding</span>
-        <label for="opt-padding">
-          <input type="checkbox" id="opt-padding" />
-          Add padding (px)
-        </label>
-        <input type="range" id="padding-slider" min="0" max="200" value="0" style="width:110px" disabled aria-label="Padding amount in pixels" />
-        <span class="range-val" id="pad-val" aria-live="polite">0</span>
-        <input type="number" id="padding-num" value="0" min="0" max="500" aria-label="Padding value" disabled />
-      </div>
-
-      <!-- Output format row -->
-      <div class="options-row">
-        <span class="opt-label">Output Format</span>
-        <div class="mode-tabs" role="group" aria-label="Output format">
-          <button class="mode-tab active" id="fmt-match"  aria-pressed="true" >Match input</button>
-          <button class="mode-tab"        id="fmt-png"    aria-pressed="false">PNG</button>
-          <button class="mode-tab"        id="fmt-webp"   aria-pressed="false">WebP</button>
-          <button class="mode-tab"        id="fmt-jpg"    aria-pressed="false">JPG</button>
-        </div>
-        <span style="font-size:0.75rem;color:#354055;" id="fmt-note"></span>
-      </div>
-
-      <!-- Background removal row -->
-      <div class="options-row" id="bgr-row">
-        <span class="opt-label">Background Removal <span class="opt-label-badge">AI</span></span>
-        <div class="bgr-controls">
-
-          <!-- State: idle (not loaded) -->
-          <div id="bgr-state-idle" class="bgr-state">
-            <button class="btn-bgr-load" id="btn-bgr-load">⬇ Load model</button>
-            <button class="btn-bgr-info" id="btn-bgr-info" aria-label="What is this?" title="What is this?">ℹ</button>
-          </div>
-
-          <!-- State: loading -->
-          <div id="bgr-state-loading" class="bgr-state" hidden>
-            <span class="spinner"></span>
-            <span class="bgr-msg" id="bgr-loading-msg">Connecting…</span>
-            <div class="bgr-progress-wrap">
-              <div class="bgr-progress-track">
-                <div class="bgr-progress-bar" id="bgr-progress-bar"></div>
-              </div>
-              <span class="bgr-progress-text" id="bgr-progress-text"></span>
-            </div>
-          </div>
-
-          <!-- State: ready — no global toggle; BG removal is per-card -->
-          <div id="bgr-state-ready" class="bgr-state" hidden>
-            <span class="bgr-ready-dot" aria-hidden="true">●</span>
-            <span class="bgr-msg">Model ready — use <strong style="color:#29c2f5">✦ Remove BG</strong> on any card</span>
-          </div>
-
-          <!-- State: error -->
-          <div id="bgr-state-error" class="bgr-state" hidden>
-            <span class="bgr-err-dot" aria-hidden="true">✕</span>
-            <span class="bgr-msg" id="bgr-err-msg">Failed to load</span>
-            <button class="btn-bgr-load" id="btn-bgr-retry">Retry</button>
-          </div>
-        </div>
-
-        <!-- Info tooltip -->
-        <div id="bgr-tooltip" class="bgr-tooltip" role="tooltip" hidden>
-          <strong>AI Background Removal</strong>
-          <p>Uses the <em>RMBG-1.4</em> model via <code style="font-size:0.78rem;color:#7a9ec8">@imgly/background-removal@1.7.0</code> (~40&nbsp;MB, downloaded once and cached by your browser). Processing is entirely on-device — nothing is uploaded anywhere.</p>
-          <p>Trigger it per-image with the <strong>✦ Remove BG</strong> button on each card. Best for subjects with a clear foreground (people, objects, logos).</p>
-          <button class="bgr-tooltip-close" id="bgr-tooltip-close" aria-label="Close">✕</button>
-        </div>
-      </div>
-
-    </div>
-
-    <div id="status" aria-live="polite" aria-atomic="true"></div>
-  </div>
-
-  <!-- ── TOOLBAR ── -->
-  <div id="toolbar" role="toolbar" aria-label="Batch actions">
-    <button class="btn-toolbar" id="btn-clear">✕ Clear all</button>
-    <button class="btn-toolbar" id="btn-download-all">⬇ Download all as ZIP</button>
-  </div>
-
-  <!-- ── RESULTS ── -->
-  <div id="results" aria-live="polite" aria-label="Processed images"></div>
-
-  <canvas id="work-canvas" style="display:none" aria-hidden="true"></canvas>
-
-  <!-- JSZip for Download All -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-  <!-- Import map: resolves bare "onnxruntime-web" specifier used inside @imgly/background-removal. -->
+  <!-- Import map: bare specifier used inside @imgly/background-removal -->
   <script type="importmap">
   {
     "imports": {
@@ -888,16 +408,172 @@
     }
   }
   </script>
+</head>
+<body>
+
+  <!-- ── HERO ── -->
+  <header class="c2b-hero">
+    <div class="c2b-icon-wrap">
+      <svg viewBox="0 0 200 200" width="96" height="96" xmlns="http://www.w3.org/2000/svg" aria-label="Crop2Bounds icon">
+        <defs>
+          <linearGradient id="c2bNeon" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff7ac0"/>
+            <stop offset="100%" stop-color="#ff2d95"/>
+          </linearGradient>
+        </defs>
+        <rect x="52" y="52" width="96" height="96" rx="8" fill="none" stroke="url(#c2bNeon)" stroke-width="5" stroke-dasharray="10 7" opacity=".55"/>
+        <path d="M40 62 V46 a6 6 0 0 1 6-6 h16 M138 40 h16 a6 6 0 0 1 6 6 v16 M160 138 v16 a6 6 0 0 1-6 6 h-16 M62 160 H46 a6 6 0 0 1-6-6 v-16"
+              fill="none" stroke="url(#c2bNeon)" stroke-width="7" stroke-linecap="round"/>
+        <path d="M76 100 h48 M100 76 v48" stroke="#ff7ac0" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+      </svg>
+    </div>
+    <h1 class="c2b-title">Crop2Bounds</h1>
+    <p class="c2b-subtitle">
+      Free, simple, private. Your files stay on your device.<br />
+      Works directly in your browser.
+    </p>
+    <span class="c2b-version">v1.2 · VoidNeon</span>
+  </header>
+
+  <div id="share-banner">
+    <div class="banner-inner">✓ Image received from share — review the settings, then press Process.</div>
+  </div>
+
+  <div class="tool-wrap" id="tool-wrap" data-stage="empty">
+
+    <!-- ══ 01 · UPLOAD ══ -->
+    <section class="step" aria-labelledby="step1-title">
+      <div class="step-head">
+        <span class="step-num">01</span>
+        <span class="step-title" id="step1-title">Add images</span>
+        <span class="step-note">Nothing is processed yet</span>
+      </div>
+      <div id="drop-zone" role="button" tabindex="0" aria-label="Drop images here or press Enter to browse">
+        <span class="drop-icon" aria-hidden="true">⌁</span>
+        <p>Tap to pick images, drop them here, or share them to this app</p>
+        <span class="drop-hint">PNG · WEBP · JPG · GIF · BMP · TIFF · AVIF · MULTIPLE FILES</span>
+        <input type="file" id="file-input" accept=".png,.webp,.jpg,.jpeg,.gif,.bmp,.tiff,.tif,.avif,image/*" multiple />
+      </div>
+      <div id="input-list"></div>
+      <p class="empty-hint" id="input-empty">No images added yet.</p>
+    </section>
+
+    <!-- ══ 02 · CONFIGURE ══ -->
+    <section class="step" id="config-step" aria-labelledby="step2-title">
+      <div class="step-head">
+        <span class="step-num">02</span>
+        <span class="step-title" id="step2-title">Configure</span>
+        <span class="step-note">Applied when you press Process</span>
+      </div>
+      <div class="options-panel" role="group" aria-label="Processing options">
+
+        <div class="options-row">
+          <span class="opt-label">Crop Mode</span>
+          <div class="mode-tabs" role="group" aria-label="Crop mode">
+            <button class="mode-tab active" id="tab-alpha" aria-pressed="true">Transparency</button>
+            <button class="mode-tab secondary" id="tab-color" aria-pressed="false" title="Trim a specific background colour — useful when image has no alpha channel">Color trim</button>
+          </div>
+          <div id="color-opts" aria-hidden="true">
+            <label for="trim-color">Color</label>
+            <input type="color" id="trim-color" value="#ffffff" title="Background color to trim" />
+            <label for="trim-tolerance">Tolerance</label>
+            <input type="range" id="trim-tolerance" min="0" max="128" value="20" style="width:90px" />
+            <span class="range-val" id="tol-val" aria-live="polite">20</span>
+          </div>
+        </div>
+
+        <div class="options-row">
+          <span class="opt-label">Padding</span>
+          <label for="opt-padding"><input type="checkbox" id="opt-padding" /> Add padding (px)</label>
+          <input type="range" id="padding-slider" min="0" max="200" value="0" style="width:110px" disabled aria-label="Padding amount in pixels" />
+          <span class="range-val" id="pad-val" aria-live="polite">0</span>
+          <input type="number" id="padding-num" value="0" min="0" max="500" aria-label="Padding value" disabled />
+        </div>
+
+        <div class="options-row">
+          <span class="opt-label">Output Format</span>
+          <div class="mode-tabs" role="group" aria-label="Output format">
+            <button class="mode-tab active" id="fmt-match"  aria-pressed="true">Match input</button>
+            <button class="mode-tab" id="fmt-png"    aria-pressed="false">PNG</button>
+            <button class="mode-tab" id="fmt-webp"   aria-pressed="false">WebP</button>
+            <button class="mode-tab" id="fmt-jpg"    aria-pressed="false">JPG</button>
+          </div>
+          <span id="fmt-note"></span>
+        </div>
+
+        <!-- Background removal: load the model here; apply per-card after output -->
+        <div class="options-row" id="bgr-row">
+          <span class="opt-label">Background Removal <span class="opt-label-badge">AI</span></span>
+          <div class="bgr-controls">
+            <div id="bgr-state-idle" class="bgr-state">
+              <button class="btn-bgr-load" id="btn-bgr-load">⬇ Load model</button>
+              <button class="btn-bgr-info" id="btn-bgr-info" aria-label="What is this?" title="What is this?">ℹ</button>
+            </div>
+            <div id="bgr-state-loading" class="bgr-state" hidden>
+              <span class="spinner"></span>
+              <span class="bgr-msg" id="bgr-loading-msg">Connecting…</span>
+              <div class="bgr-progress-wrap">
+                <div class="bgr-progress-track"><div class="bgr-progress-bar" id="bgr-progress-bar"></div></div>
+                <span class="bgr-progress-text" id="bgr-progress-text"></span>
+              </div>
+            </div>
+            <div id="bgr-state-ready" class="bgr-state" hidden>
+              <span class="bgr-ready-dot">●</span>
+              <span class="bgr-msg">Model ready — use ✦ Remove BG on any result card</span>
+            </div>
+            <div id="bgr-state-error" class="bgr-state" hidden>
+              <span class="bgr-err-dot">✕</span>
+              <span class="bgr-msg" id="bgr-err-msg">Failed to load</span>
+              <button class="btn-bgr-retry" id="btn-bgr-retry">Retry</button>
+            </div>
+          </div>
+          <div id="bgr-tooltip" class="bgr-tooltip" role="tooltip" hidden>
+            <strong>AI Background Removal</strong>
+            <p>Uses the <em>RMBG-1.4</em> model via <code>@imgly/background-removal@1.7.0</code> (~40 MB, downloaded once and cached by your browser). Processing is entirely on-device — nothing is uploaded.</p>
+            <p>Load the model here, then use <strong>✦ Remove BG</strong> on any result card after processing.</p>
+            <button class="bgr-tooltip-close" id="bgr-tooltip-close" aria-label="Close">✕</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 03 · PROCESS ══ -->
+    <section class="step" id="process-step" aria-labelledby="step3-title">
+      <div class="step-head">
+        <span class="step-num">03</span>
+        <span class="step-title" id="step3-title">Process</span>
+      </div>
+      <div class="process-row">
+        <button id="btn-process" disabled>▶ Process images</button>
+      </div>
+      <span id="dirty-hint">Settings changed — press again to reprocess with the new settings.</span>
+    </section>
+
+    <div id="status" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <!-- ══ 04 · OUTPUT ══ -->
+  <div class="output-section">
+    <div class="output-head" id="output-head">
+      <span class="step-num">04</span>
+      <span>Output</span>
+    </div>
+    <div id="toolbar" role="toolbar" aria-label="Batch actions">
+      <button class="btn-toolbar" id="btn-toolbar-clear">✕ Clear all</button>
+      <button class="btn-toolbar" id="btn-download-all">⬇ Download all as ZIP</button>
+    </div>
+    <div id="results" aria-live="polite" aria-label="Processed images"></div>
+  </div>
+
+  <canvas id="work-canvas" aria-hidden="true"></canvas>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <script type="module">
 
     // ═══════════════════════════════════════════════════════════════
-    // 1. INLINE WEB WORKER — pixel scanning off the main thread
+    // 1. BOUNDS WORKER — pixel scanning off the main thread
     // ═══════════════════════════════════════════════════════════════
-    // Uses OffscreenCanvas + transferred ImageBitmap so pixel scanning
-    // never touches the main thread. Falls back to main-thread canvas
-    // if OffscreenCanvas is unavailable (older Safari).
-
     const BOUNDS_WORKER_SRC = `
       self.onmessage = function({ data }) {
         var id = data.id, bitmap = data.bitmap,
@@ -908,7 +584,7 @@
         ctx.drawImage(bitmap, 0, 0);
         bitmap.close();
         var d = ctx.getImageData(0, 0, w, h).data;
-        var tol2 = tol * tol; // compare squared distance, avoids sqrt in hot loop
+        var tol2 = tol * tol;
 
         function isContent(i) {
           if (d[i+3] === 0) return false;
@@ -947,8 +623,8 @@
     `;
 
     const CAN_USE_WORKER = typeof OffscreenCanvas !== 'undefined';
-    let   boundsWorker   = null;
-    const workerPending  = new Map(); // id → resolve
+    let boundsWorker = null;
+    const workerPending = new Map();
 
     function ensureBoundsWorker() {
       if (boundsWorker) return boundsWorker;
@@ -959,7 +635,6 @@
         if (cb) { workerPending.delete(id); cb(bounds); }
       };
       boundsWorker.onerror = () => {
-        // On error reject all pending and discard the worker so it can be recreated
         for (const cb of workerPending.values()) cb(null);
         workerPending.clear();
         boundsWorker = null;
@@ -967,14 +642,12 @@
       return boundsWorker;
     }
 
-    // Scan content bounds — worker path preferred, main-thread fallback.
-    // `img` must be a loaded HTMLImageElement (or any createImageBitmap-compatible source).
     async function scanBounds(img, mode, color, tolerance) {
       if (CAN_USE_WORKER) {
         try {
           const bitmap = await createImageBitmap(img);
           const bounds = await new Promise((resolve, reject) => {
-            const id      = crypto.randomUUID();
+            const id = crypto.randomUUID();
             const timeout = setTimeout(() => {
               workerPending.delete(id);
               reject(new Error('Worker timeout'));
@@ -993,14 +666,12 @@
       return scanBoundsMain(img, mode, color, tolerance);
     }
 
-    // Main-thread fallback (uses the shared work-canvas).
     function scanBoundsMain(img, mode, color, tolerance) {
       const w = img.naturalWidth, h = img.naturalHeight;
-      workCanvas.width  = w;
-      workCanvas.height = h;
+      workCanvas.width = w; workCanvas.height = h;
       ctx.clearRect(0, 0, w, h);
       ctx.drawImage(img, 0, 0);
-      const d    = ctx.getImageData(0, 0, w, h).data;
+      const d = ctx.getImageData(0, 0, w, h).data;
       const tol2 = tolerance * tolerance;
 
       const isContent = mode === 'color'
@@ -1038,15 +709,13 @@
 
 
     // ═══════════════════════════════════════════════════════════════
-    // 2. AI BACKGROUND REMOVAL — pinned version, bytes progress
+    // 2. AI BACKGROUND REMOVAL (load in step 02, apply per card)
     // ═══════════════════════════════════════════════════════════════
-
-    // Explicit version pin — bump when upgrading.
     const BGR_VERSION = '1.7.0';
     const BGR_ESM_URL = `https://cdn.jsdelivr.net/npm/@imgly/background-removal@${BGR_VERSION}/dist/index.mjs`;
 
-    let bgRemoveFn = null; // set after successful load; (blob) → Promise<Blob>
-    let bgrState   = 'idle'; // 'idle' | 'loading' | 'ready' | 'error'
+    let bgRemoveFn = null;
+    let bgrState   = 'idle'; // idle | loading | ready | error
 
     function setBgrState(state, errMsg) {
       bgrState = state;
@@ -1056,49 +725,42 @@
       document.getElementById('bgr-state-error').hidden   = state !== 'error';
       if (state === 'error' && errMsg)
         document.getElementById('bgr-err-msg').textContent = errMsg;
-      // Sync all per-card BGR buttons with the new state
       syncAllBgrButtons();
     }
 
     function syncAllBgrButtons() {
       document.querySelectorAll('.btn-card-bgr').forEach(btn => {
         btn.disabled = bgrState !== 'ready';
-        btn.title    = bgrState === 'ready'
+        btn.title = bgrState === 'ready'
           ? 'Remove background using AI (on-device)'
-          : 'Load the AI model first (use the global panel above)';
+          : 'Load the AI model first (step 02)';
       });
     }
 
     async function loadBgRemoval() {
       if (bgrState === 'ready')   return true;
       if (bgrState === 'loading') return false;
-
       setBgrState('loading');
 
       const progressBar  = document.getElementById('bgr-progress-bar');
       const progressText = document.getElementById('bgr-progress-text');
       const loadingMsg   = document.getElementById('bgr-loading-msg');
-      progressBar.style.width  = '0%';
+      progressBar.style.width = '0%';
       progressText.textContent = '';
-      loadingMsg.textContent   = 'Connecting…';
+      loadingMsg.textContent = 'Connecting…';
 
       function onProgress(key, current, total) {
         if (total > 0) {
-          const pct    = Math.round(current / total * 100);
-          const currMB = (current / 1_048_576).toFixed(1);
-          const totMB  = (total   / 1_048_576).toFixed(1);
-          progressBar.style.width  = pct + '%';
-          progressText.textContent = `${currMB} / ${totMB} MB`;
+          progressBar.style.width = Math.round(current / total * 100) + '%';
+          progressText.textContent =
+            (current / 1_048_576).toFixed(1) + ' / ' + (total / 1_048_576).toFixed(1) + ' MB';
         }
       }
 
       const baseCfg = {
-        device:   'cpu',
-        output:   { format: 'image/png' },
+        device: 'cpu',
+        output: { format: 'image/png' },
         progress: onProgress,
-        // publicPath intentionally omitted — the library auto-detects it from
-        // import.meta.url (the jsDelivr ESM URL), which points to the correct
-        // model asset location for this package version.
       };
 
       try {
@@ -1107,123 +769,45 @@
         const fn  = mod.removeBackground ?? mod.default;
         if (typeof fn !== 'function') throw new Error('removeBackground not found in module exports');
 
-        // Warm the model: use preload() if available, otherwise a tiny 1×1 inference.
         loadingMsg.textContent = 'Downloading model…';
         if (typeof mod.preload === 'function') {
           await mod.preload(baseCfg);
         } else {
-          // Trigger model download via a near-zero-cost inference on a 1×1 transparent PNG.
           const tinyPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
           const tinyBlob = await fetch(tinyPng).then(r => r.blob());
           await fn(tinyBlob, baseCfg);
         }
 
-        // Store the inference function without the progress callback
-        // (model is now cached — no progress events will fire on re-use).
-        bgRemoveFn = (blob) => fn(blob, {
-          device: 'cpu',
-          output: { format: 'image/png' },
-        });
-
+        bgRemoveFn = (blob) => fn(blob, { device: 'cpu', output: { format: 'image/png' } });
         setBgrState('ready');
         return true;
       } catch (e) {
         console.error('BGR load error:', e);
-        const msg = (e?.message || 'Download failed — check your connection').slice(0, 90);
-        setBgrState('error', msg);
+        setBgrState('error', (e?.message || 'Download failed — check your connection').slice(0, 90));
         return false;
       }
     }
 
 
     // ═══════════════════════════════════════════════════════════════
-    // 3. JOB STATE — separated from DOM
+    // 3. STATE + DOM
     // ═══════════════════════════════════════════════════════════════
-    // Each dropped file gets one job object. All mutable rendering
-    // state lives here; the card element is referenced but not the
-    // source of truth.
-
-    // jobs: Map<id, job>
+    // jobs: staged inputs and their (optional) processed output.
     const jobs = new Map();
-
-    function createJob(file) {
-      const job = {
-        id:        crypto.randomUUID(),
-        file,
-        origMime:  file.type,
-        status:    'pending', // 'pending' | 'running' | 'done' | 'error'
-        // Set after successful processing:
-        img:       null,   // HTMLImageElement — current source (may be bg-removed)
-        bounds:    null,   // { top, left, bottom, right }
-        hasBgr:    false,
-        // Per-card trim settings (snapshotted from global at process time; editable per card)
-        trimMode:  'alpha',
-        trimColor: '#ffffff',
-        trimTol:   20,
-        // Resolved output — recomputed by resolveJobOutput():
-        mime:    '',
-        ext:     '',
-        outName: '',
-        // DOM reference
-        card: null,
-      };
-      jobs.set(job.id, job);
-      return job;
-    }
-
-    // Recompute job.mime / job.ext / job.outName from current global outputFmt.
-    // Must be called before any render that uses the output format.
-    function resolveJobOutput(job) {
-      let { mime, ext } = resolveOutputFormat(job.origMime);
-      // BG-removed images always need an alpha channel — never JPEG.
-      if (job.hasBgr && mime === 'image/jpeg') {
-        mime = 'image/png'; ext = 'png';
-      }
-      job.mime    = mime;
-      job.ext     = ext;
-      job.outName = job.file.name.replace(/\.[^.]+$/, '') + '_cropped.' + ext;
-      // Keep img element in sync so renderCrop picks up the new format.
-      if (job.img) job.img._mime = mime;
-      return { mime, ext };
-    }
-
-    // Re-render every done card — called when outputFmt or padding changes.
-    function reRenderAllCards() {
-      const pad = getPadding();
-      for (const job of jobs.values()) {
-        if (job.status !== 'done' || !job.card || !job.img) continue;
-        resolveJobOutput(job);
-        applyRenderToCard(job, pad);
-      }
-    }
-
-    // Render crop and push the result into the card's DOM.
-    function applyRenderToCard(job, pad) {
-      pad = pad ?? getPadding();
-      const { dataURL, w, h, srcX, srcY } = renderCrop(job.img, job.bounds, pad);
-      const card = job.card;
-      card.dataset.outName = job.outName;
-      card.querySelector('.img-crop').src                 = dataURL;
-      card.querySelector('.dim-out').textContent          = `${w}×${h}`;
-      card.querySelector('.off-x').textContent            = srcX;
-      card.querySelector('.off-y').textContent            = srcY;
-      card.querySelector('.out-name-text').textContent    = job.outName;
-    }
-
-
-    // ═══════════════════════════════════════════════════════════════
-    // 4. DOM REFS & STATE
-    // ═══════════════════════════════════════════════════════════════
 
     const dropZone      = document.getElementById('drop-zone');
     const fileInput     = document.getElementById('file-input');
+    const inputList     = document.getElementById('input-list');
+    const inputEmpty    = document.getElementById('input-empty');
     const results       = document.getElementById('results');
     const statusEl      = document.getElementById('status');
     const workCanvas    = document.getElementById('work-canvas');
     const ctx           = workCanvas.getContext('2d', { willReadFrequently: true });
     const toolbar       = document.getElementById('toolbar');
+    const outputHead    = document.getElementById('output-head');
+    const processBtn    = document.getElementById('btn-process');
+    const dirtyHint     = document.getElementById('dirty-hint');
 
-    // Options
     const tabAlpha      = document.getElementById('tab-alpha');
     const tabColor      = document.getElementById('tab-color');
     const colorOpts     = document.getElementById('color-opts');
@@ -1234,14 +818,128 @@
     const paddingSlider = document.getElementById('padding-slider');
     const paddingNum    = document.getElementById('padding-num');
     const padVal        = document.getElementById('pad-val');
+    const fmtNote       = document.getElementById('fmt-note');
+    const fmtButtons = {
+      match: document.getElementById('fmt-match'),
+      png:   document.getElementById('fmt-png'),
+      webp:  document.getElementById('fmt-webp'),
+      jpg:   document.getElementById('fmt-jpg'),
+    };
 
-    let cropMode  = 'alpha'; // 'alpha' | 'color'
-    let outputFmt = 'match'; // 'match' | 'png' | 'webp' | 'jpg'
+    let cropMode   = 'alpha';
+    let outputFmt  = 'match';
+    let settingsDirty = false;
+    let settingsVersion = 0;
+    let isProcessing  = false;
 
 
-    // ── Crop mode tabs ──────────────────────────────────────────────
-    tabAlpha.addEventListener('click', () => setMode('alpha'));
-    tabColor.addEventListener('click', () => setMode('color'));
+    // ═══════════════════════════════════════════════════════════════
+    // 4. STEP 01 — ADD / STAGE IMAGES
+    // ═══════════════════════════════════════════════════════════════
+    function addFiles(fileList) {
+      const files = [...fileList].filter(f => f.type.startsWith('image/'));
+      if (!files.length) {
+        statusEl.textContent = 'No valid image files selected.';
+        return;
+      }
+      for (const file of files) {
+        const job = {
+          id:        crypto.randomUUID(),
+          file,
+          url:       URL.createObjectURL(file),
+          status:    'staged',        // staged | running | done | error
+          img:       null,
+          bounds:    null,
+          hasBgr:    false,
+          trimMode:  cropMode,
+          trimColor: trimColor.value,
+          trimTol:   Number(trimTolerance.value),
+          mime: '', ext: '', outName: '',
+          card: null, placeholder: null,
+        };
+        jobs.set(job.id, job);
+      }
+      renderInputList();
+      updateProcessButton();
+      statusEl.textContent = `${files.length} image(s) added — configure, then press Process.`;
+    }
+
+    function renderInputList() {
+      inputList.innerHTML = '';
+      const all = [...jobs.values()];
+      document.getElementById('tool-wrap').dataset.stage = all.length ? 'ready' : 'empty';
+      inputEmpty.style.display = all.length ? 'none' : 'block';
+      for (const job of all) {
+        const item = document.createElement('div');
+        item.className = 'input-item';
+        item.innerHTML = `
+          <img src="${job.url}" alt="" />
+          <button class="input-remove" aria-label="Remove ${escHtml(job.file.name)}">×</button>
+          <div class="input-meta">
+            <span class="input-name" title="${escHtml(job.file.name)}">${escHtml(job.file.name)}</span>
+            <span class="input-size">${formatBytes(job.file.size)}</span>
+          </div>`;
+        item.querySelector('.input-remove').addEventListener('click', () => removeJob(job.id));
+        inputList.appendChild(item);
+      }
+    }
+
+    function removeJob(id) {
+      const job = jobs.get(id);
+      if (!job) return;
+      if (job.url) URL.revokeObjectURL(job.url);
+      if (job.card) job.card.remove();
+      if (job.placeholder) job.placeholder.remove();
+      jobs.delete(id);
+      renderInputList();
+      renderOutputChrome();
+      updateProcessButton();
+      statusEl.textContent = '';
+    }
+
+    function clearAll() {
+      for (const job of jobs.values()) if (job.url) URL.revokeObjectURL(job.url);
+      jobs.clear();
+      results.innerHTML = '';
+      renderInputList();
+      toolbar.classList.remove('visible');
+      outputHead.classList.remove('visible');
+      dirtyHint.classList.remove('visible');
+      settingsDirty = false;
+      updateProcessButton();
+      statusEl.textContent = '';
+    }
+
+    function formatBytes(n) {
+      if (n < 1024) return n + ' B';
+      if (n < 1048576) return (n / 1024).toFixed(0) + ' KB';
+      return (n / 1048576).toFixed(1) + ' MB';
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════
+    // 5. STEP 02 — OPTIONS (never auto-process)
+    // ═══════════════════════════════════════════════════════════════
+    function markDirty() {
+      settingsVersion++;
+      if (isProcessing || [...jobs.values()].some(j => j.status === 'done')) {
+        settingsDirty = true;
+        dirtyHint.classList.add('visible');
+        updateProcessButton();
+      }
+    }
+
+    function updateProcessButton() {
+      const count = jobs.size;
+      const hasOutput = [...jobs.values()].some(j => j.status === 'done');
+      processBtn.disabled = isProcessing || count === 0;
+      document.getElementById('btn-toolbar-clear').disabled = isProcessing;
+      processBtn.textContent = isProcessing
+        ? '⏳ Processing…'
+        : hasOutput
+          ? `↻ Reprocess ${count} image${count === 1 ? '' : 's'}`
+          : `▶ Process ${count} image${count === 1 ? '' : 's'}`;
+    }
 
     function setMode(mode) {
       cropMode = mode;
@@ -1251,17 +949,8 @@
       tabColor.setAttribute('aria-pressed', mode === 'color');
       colorOpts.classList.toggle('visible', mode === 'color');
       colorOpts.setAttribute('aria-hidden', mode !== 'color');
+      markDirty();
     }
-
-
-    // ── Output format tabs ──────────────────────────────────────────
-    const fmtButtons = {
-      match: document.getElementById('fmt-match'),
-      png:   document.getElementById('fmt-png'),
-      webp:  document.getElementById('fmt-webp'),
-      jpg:   document.getElementById('fmt-jpg'),
-    };
-    const fmtNote = document.getElementById('fmt-note');
 
     function setOutputFmt(fmt) {
       outputFmt = fmt;
@@ -1274,177 +963,213 @@
         : fmt === 'match'
         ? 'JPG input → JPG out (white bg); PNG/WebP input → preserved'
         : '';
-      // Rebuild output for all existing cards to reflect the new format
-      reRenderAllCards();
+      markDirty();
     }
 
-    Object.entries(fmtButtons).forEach(([k, btn]) =>
-      btn.addEventListener('click', () => setOutputFmt(k))
-    );
-
-    // Returns { mime, ext } for a given input MIME, respecting global outputFmt.
-    function resolveOutputFormat(inputMime) {
-      if (outputFmt === 'png')  return { mime: 'image/png',  ext: 'png'  };
-      if (outputFmt === 'webp') return { mime: 'image/webp', ext: 'webp' };
-      if (outputFmt === 'jpg')  return { mime: 'image/jpeg', ext: 'jpg'  };
-      // 'match': keep input format, normalising obscure types to PNG
-      if (inputMime === 'image/webp') return { mime: 'image/webp', ext: 'webp' };
-      if (inputMime === 'image/jpeg') return { mime: 'image/jpeg', ext: 'jpg'  };
-      return { mime: 'image/png', ext: 'png' };
+    function getPadding() {
+      return optPadding.checked ? (Number(paddingNum.value) || 0) : 0;
     }
 
-
-    // ── Tolerance / padding controls ───────────────────────────────
-    trimTolerance.addEventListener('input', () => { tolVal.textContent = trimTolerance.value; });
-
+    tabAlpha.addEventListener('click', () => setMode('alpha'));
+    tabColor.addEventListener('click', () => setMode('color'));
+    Object.entries(fmtButtons).forEach(([k, btn]) => btn.addEventListener('click', () => setOutputFmt(k)));
+    trimTolerance.addEventListener('input', () => { tolVal.textContent = trimTolerance.value; markDirty(); });
+    trimColor.addEventListener('input', markDirty);
     optPadding.addEventListener('change', () => {
-      const en = optPadding.checked;
-      paddingSlider.disabled = !en;
-      paddingNum.disabled    = !en;
-      if (!en) { paddingSlider.value = 0; paddingNum.value = 0; padVal.textContent = '0'; }
-      reRenderAllCards();
+      const enabled = optPadding.checked;
+      paddingSlider.disabled = !enabled;
+      paddingNum.disabled = !enabled;
+      if (!enabled) { paddingSlider.value = 0; paddingNum.value = 0; padVal.textContent = '0'; }
+      markDirty();
     });
-
     paddingSlider.addEventListener('input', () => {
       paddingNum.value = paddingSlider.value;
       padVal.textContent = paddingSlider.value;
-      reRenderAllCards();
+      markDirty();
     });
-
     paddingNum.addEventListener('input', () => {
       paddingSlider.value = Math.min(200, Math.max(0, paddingNum.value || 0));
-      padVal.textContent  = paddingSlider.value;
-      reRenderAllCards();
+      padVal.textContent = paddingSlider.value;
+      markDirty();
     });
 
-
-    // ── BGR buttons & tooltip ───────────────────────────────────────
-    document.getElementById('btn-bgr-load').addEventListener('click',  loadBgRemoval);
+    // BG model controls + tooltip
+    document.getElementById('btn-bgr-load').addEventListener('click', loadBgRemoval);
     document.getElementById('btn-bgr-retry').addEventListener('click', () => {
-      setBgrState('idle'); // reset so loadBgRemoval re-runs
+      setBgrState('idle');
       loadBgRemoval();
     });
-
     const bgrTooltip = document.getElementById('bgr-tooltip');
     document.getElementById('btn-bgr-info').addEventListener('click', (e) => {
       e.stopPropagation();
       bgrTooltip.hidden = !bgrTooltip.hidden;
     });
-    document.getElementById('bgr-tooltip-close').addEventListener('click', () => {
-      bgrTooltip.hidden = true;
-    });
+    document.getElementById('bgr-tooltip-close').addEventListener('click', () => { bgrTooltip.hidden = true; });
     document.addEventListener('click', (e) => {
       if (!bgrTooltip.hidden && !bgrTooltip.contains(e.target) && e.target.id !== 'btn-bgr-info')
         bgrTooltip.hidden = true;
     });
 
-
-    // ── Drop zone ───────────────────────────────────────────────────
+    // Drop zone wiring
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('keydown', e => {
+    dropZone.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
     });
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', e => {
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', (e) => {
       if (!dropZone.contains(e.relatedTarget)) dropZone.classList.remove('drag-over');
     });
-    dropZone.addEventListener('drop', e => {
+    dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('drag-over');
-      handleFiles(e.dataTransfer.files);
+      addFiles(e.dataTransfer.files);
     });
-    fileInput.addEventListener('change', () => { handleFiles(fileInput.files); fileInput.value = ''; });
+    fileInput.addEventListener('change', () => { addFiles(fileInput.files); fileInput.value = ''; });
 
 
-    // ── Toolbar buttons ─────────────────────────────────────────────
-    document.getElementById('btn-download-all').addEventListener('click', downloadAll);
-    document.getElementById('btn-clear').addEventListener('click', () => {
+    // ═══════════════════════════════════════════════════════════════
+    // 6. STEP 03 — PROCESS (explicit user action)
+    // ═══════════════════════════════════════════════════════════════
+    processBtn.addEventListener('click', processAll);
+
+    async function processAll() {
+      const all = [...jobs.values()];
+      if (!all.length || isProcessing) return;
+      isProcessing = true;
+      const startVersion = settingsVersion;
+      updateProcessButton();
       results.innerHTML = '';
-      jobs.clear();
-      toolbar.classList.remove('visible');
-      statusEl.textContent = '';
-    });
 
-
-    // ═══════════════════════════════════════════════════════════════
-    // 5. PROCESSING PIPELINE
-    // ═══════════════════════════════════════════════════════════════
-
-    async function handleFiles(fileList) {
-      const files = [...fileList].filter(f => f.type.startsWith('image/'));
-      if (!files.length) { statusEl.textContent = 'No valid image files selected.'; return; }
-
-      statusEl.textContent = `Processing ${files.length} file(s)…`;
-      await Promise.all(files.map(f => processFile(f)));
-      const done  = [...jobs.values()].filter(j => j.status === 'done').length;
-      const total = jobs.size;
-      statusEl.textContent = `Done — ${done} of ${total} processed.`;
-      toolbar.classList.add('visible');
-    }
-
-    async function processFile(file) {
-      const job = createJob(file);
-      job.status = 'running';
-
-      // Snapshot global crop settings for this card's per-card defaults
-      job.trimMode  = cropMode;
-      job.trimColor = trimColor.value;
-      job.trimTol   = Number(trimTolerance.value);
-
-      // Create placeholder card immediately
-      const placeholder = createPlaceholderCard(file.name);
-      results.prepend(placeholder);
-
-      let imgSrc;
-      try {
-        // 1. Load image
-        setPlaceholderMsg(placeholder, '<span class="spinner"></span>Loading…');
-        imgSrc = URL.createObjectURL(file);
-        const img = await loadImage(imgSrc);
-
-        // 2. Resolve output format
-        resolveJobOutput(job); // sets job.mime / job.ext / job.outName
-        img._mime = job.mime;
-
-        // 3. Scan bounds (worker path when available)
-        setPlaceholderMsg(placeholder, '<span class="spinner"></span>Scanning bounds…');
-        const color = hexToRgb(job.trimColor);
-        job.bounds = await scanBounds(img, job.trimMode, color, job.trimTol);
-
-        job.img    = img;
-        job.status = 'done';
-
-        // 4. Build and insert card
-        const origUrl = URL.createObjectURL(file); // for original preview
-        const card    = buildResultCard(job, origUrl);
-        job.card      = card;
-        placeholder.replaceWith(card);
-
-      } catch (e) {
-        job.status = 'error';
-        placeholder.replaceWith(buildErrorCard(file.name, e.message));
-      } finally {
-        if (imgSrc) URL.revokeObjectURL(imgSrc);
+      // Reset every job and place placeholders in input order.
+      for (const job of all) {
+        job.status = 'running';
+        job.img = null;
+        job.bounds = null;
+        job.hasBgr = false;
+        job.card = null;
+        job.trimMode  = cropMode;
+        job.trimColor = trimColor.value;
+        job.trimTol   = Number(trimTolerance.value);
+        job.placeholder = createPlaceholderCard(job.file.name);
+        results.appendChild(job.placeholder);
       }
+      settingsDirty = false;
+      dirtyHint.classList.remove('visible');
+
+      statusEl.textContent = `Processing ${all.length} image(s)…`;
+      let done = 0, failed = 0;
+      await Promise.all(all.map(async (job) => {
+        try {
+          await processJob(job);
+          done++;
+        } catch (e) {
+          failed++;
+          job.status = 'error';
+          job.placeholder.replaceWith(buildErrorCard(job.file.name, e.message));
+        }
+      }));
+
+      // If settings were changed while this batch was running, flag a reprocess.
+      settingsDirty = settingsVersion !== startVersion;
+      dirtyHint.classList.toggle('visible', settingsDirty);
+      renderOutputChrome();
+      updateProcessButton();
+      statusEl.textContent = `Done — ${done} processed${failed ? `, ${failed} failed` : ''}.`;
+      isProcessing = false;
+      updateProcessButton();
+    }
+
+    async function processJob(job) {
+      setPlaceholderMsg(job.placeholder, '<span class="spinner"></span>Loading…');
+      const img = await loadImage(job.url);
+      job.img = img;
+
+      resolveJobOutput(job); // sets mime / ext / outName and img._mime
+
+      setPlaceholderMsg(job.placeholder, '<span class="spinner"></span>Scanning bounds…');
+      const color = hexToRgb(job.trimColor);
+      job.bounds = await scanBounds(img, job.trimMode, color, job.trimTol);
+
+      job.status = 'done';
+      const card = buildResultCard(job);
+      job.card = card;
+      job.placeholder.replaceWith(card);
+    }
+
+    function resolveJobOutput(job) {
+      let { mime, ext } = resolveOutputFormat(job.origMime ?? job.file.type);
+      // BG-removed images need alpha — never JPEG.
+      if (job.hasBgr && mime === 'image/jpeg') { mime = 'image/png'; ext = 'png'; }
+      job.mime = mime;
+      job.ext = ext;
+      job.outName = job.file.name.replace(/\.[^.]+$/, '') + '_cropped.' + ext;
+      if (job.img) job.img._mime = mime;
+      return { mime, ext };
+    }
+
+    function resolveOutputFormat(inputMime) {
+      if (outputFmt === 'png')  return { mime: 'image/png',  ext: 'png'  };
+      if (outputFmt === 'webp') return { mime: 'image/webp', ext: 'webp' };
+      if (outputFmt === 'jpg')  return { mime: 'image/jpeg', ext: 'jpg'  };
+      if (inputMime === 'image/webp') return { mime: 'image/webp', ext: 'webp' };
+      if (inputMime === 'image/jpeg') return { mime: 'image/jpeg', ext: 'jpg'  };
+      return { mime: 'image/png', ext: 'png' };
+    }
+
+    function applyRenderToCard(job) {
+      resolveJobOutput(job);
+      const pad = getPadding();
+      const { dataURL, w, h, srcX, srcY } = renderCrop(job.img, job.bounds, pad);
+      const card = job.card;
+      if (!card) return;
+      card.dataset.outName = job.outName;
+      card.querySelector('.img-crop').src = dataURL;
+      card.querySelector('.dim-out').textContent = `${w}×${h}`;
+      card.querySelector('.off-x').textContent = srcX;
+      card.querySelector('.off-y').textContent = srcY;
+      card.querySelector('.out-name-text').textContent = job.outName;
+    }
+
+    function renderCrop(img, bounds, pad) {
+      const srcX = Math.max(0, bounds.left   - pad);
+      const srcY = Math.max(0, bounds.top    - pad);
+      const srcR = Math.min(img.naturalWidth  - 1, bounds.right  + pad);
+      const srcB = Math.min(img.naturalHeight - 1, bounds.bottom + pad);
+      const w = srcR - srcX + 1;
+      const h = srcB - srcY + 1;
+
+      const out = document.createElement('canvas');
+      out.width = w; out.height = h;
+      const octx = out.getContext('2d');
+      if (img._mime === 'image/jpeg') {
+        octx.fillStyle = '#ffffff';
+        octx.fillRect(0, 0, w, h);
+      }
+      octx.drawImage(img, srcX, srcY, w, h, 0, 0, w, h);
+      return { dataURL: out.toDataURL(img._mime), w, h, srcX, srcY };
     }
 
 
     // ═══════════════════════════════════════════════════════════════
-    // 6. CARD BUILDER
+    // 7. STEP 04 — OUTPUT CARDS
     // ═══════════════════════════════════════════════════════════════
+    function renderOutputChrome() {
+      const hasOutput = [...jobs.values()].some(j => j.status === 'done');
+      toolbar.classList.toggle('visible', hasOutput);
+      outputHead.classList.toggle('visible', hasOutput);
+    }
 
-    function buildResultCard(job, origObjectUrl) {
-      resolveJobOutput(job); // ensure outName/mime are fresh
-      const pad               = getPadding();
+    function buildResultCard(job) {
+      resolveJobOutput(job);
+      const pad = getPadding();
       const { dataURL, w, h, srcX, srcY } = renderCrop(job.img, job.bounds, pad);
-      const origW             = job.img.naturalWidth;
-      const origH             = job.img.naturalHeight;
+      const origW = job.img.naturalWidth;
+      const origH = job.img.naturalHeight;
 
       const card = document.createElement('div');
-      card.className       = 'result-card';
+      card.className = 'result-card';
       card.dataset.outName = job.outName;
-      card.dataset.jobId   = job.id;
-
+      card.dataset.jobId = job.id;
       card.innerHTML = `
         <div class="result-header">
           <div class="filename-block">
@@ -1453,8 +1178,9 @@
           </div>
           <span class="meta">${origW}×${origH} &rarr; <span class="dim-out">${w}×${h}</span> &nbsp;|&nbsp; offset (<span class="off-x">${srcX}</span>, <span class="off-y">${srcY}</span>)</span>
           <div class="card-actions">
-            <button class="btn-action btn-copy-img" title="Copy cropped image to clipboard">⎘ Copy image</button>
-            <button class="btn-action primary btn-dl">↓ Download</button>
+            <button class="btn-action btn-copy-img" title="Copy cropped image to clipboard">⎘ Copy</button>
+            <button class="btn-action btn-share" title="Share via Android share sheet / system share">↑ Share</button>
+            <button class="btn-action primary btn-dl">↓ Save</button>
           </div>
         </div>
         <div class="preview-row">
@@ -1462,184 +1188,95 @@
           <div class="preview-box"><span>Cropped</span><img class="img-crop" alt="Cropped" /></div>
         </div>
         <div class="reprocess-bar">
-          <span class="reprocess-label">Re-process</span>
-
-          <button class="btn-action btn-card-trim" title="Re-trim with colour settings">✂ Trim</button>
-
-          <div class="card-color-wrap">
-            <label>Color <input type="color" class="card-trim-color" value="${escHtml(job.trimColor)}" title="Background color to trim" /></label>
-          </div>
-          <div class="card-tol-wrap">
-            Tol <input type="range" class="card-trim-tol" min="0" max="128" value="${job.trimTol}" />
-            <span class="card-tol-val">${job.trimTol}</span>
-          </div>
-
-          <div class="reprocess-sep"></div>
-
-          <button class="btn-action btn-card-bgr"
-            ${bgrState !== 'ready' ? 'disabled' : ''}
-            title="${bgrState === 'ready' ? 'Remove background using AI (on-device)' : 'Load the AI model first (use the global panel above)'}">
-            ✦ Remove BG
-          </button>
+          <span class="reprocess-label">Per image</span>
+          <button class="btn-action btn-card-trim" title="Re-trim using the colour picker and tolerance below">✂ Trim</button>
+          <div class="card-color-wrap"><label>Color <input type="color" class="card-trim-color" value="${escHtml(job.trimColor)}" /></label></div>
+          <div class="card-tol-wrap">Tol <input type="range" class="card-trim-tol" min="0" max="128" value="${job.trimTol}" /><span class="card-tol-val">${job.trimTol}</span></div>
+          <span class="reprocess-sep"></span>
+          <button class="btn-action btn-card-bgr" ${bgrState !== 'ready' ? 'disabled' : ''}
+            title="${bgrState === 'ready' ? 'Remove background using AI (on-device)' : 'Load the AI model first in step 02'}">✦ Remove BG</button>
         </div>`;
 
-      // Original preview — revoke object URL after it loads
-      const origImg = card.querySelector('.img-orig');
-      origImg.src = origObjectUrl;
-      origImg.addEventListener('load', () => URL.revokeObjectURL(origObjectUrl), { once: true });
-
-      // Cropped preview
+      card.querySelector('.img-orig').src = job.url;
       card.querySelector('.img-crop').src = dataURL;
+      syncAllBgrButtons();
 
-      // Tolerance display
-      const tolSlider  = card.querySelector('.card-trim-tol');
+      const tolSlider = card.querySelector('.card-trim-tol');
       const tolDisplay = card.querySelector('.card-tol-val');
       tolSlider.addEventListener('input', () => { tolDisplay.textContent = tolSlider.value; });
 
-      // ── Download ──
-      card.querySelector('.btn-dl').addEventListener('click', () => {
-        triggerDownload(card.querySelector('.img-crop').src, card.dataset.outName);
-      });
+      // Individual download
+      card.querySelector('.btn-dl').addEventListener('click', () =>
+        triggerDownload(card.querySelector('.img-crop').src, card.dataset.outName));
 
-      // ── Copy image ──
+      // Individual copy
       card.querySelector('.btn-copy-img').addEventListener('click', async (e) => {
         const btn = e.currentTarget;
         try {
           const blob = await dataURLtoBlob(card.querySelector('.img-crop').src);
           await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-          flashCopied(btn, '⎘ Copy image');
+          flashCopied(btn, '⎘ Copied');
         } catch {
           btn.textContent = '✗ Not supported';
-          setTimeout(() => { btn.textContent = '⎘ Copy image'; }, 2000);
+          setTimeout(() => { btn.textContent = '⎘ Copy'; }, 2000);
         }
       });
 
-      // ── Re-trim (per-card colour trim) ──
+      // Per-card colour trim
       card.querySelector('.btn-card-trim').addEventListener('click', async (e) => {
         const btn = e.currentTarget;
-        btn.classList.add('running');
-        btn.textContent = '…';
+        btn.classList.add('running'); btn.textContent = '…';
         try {
           const color = hexToRgb(card.querySelector('.card-trim-color').value);
-          const tol   = Number(card.querySelector('.card-trim-tol').value);
-          job.bounds  = await scanBounds(job.img, 'color', color, tol);
+          const tol = Number(card.querySelector('.card-trim-tol').value);
+          job.trimColor = card.querySelector('.card-trim-color').value;
+          job.trimTol = tol;
+          job.bounds = await scanBounds(job.img, 'color', color, tol);
           applyRenderToCard(job);
+        } catch (err) {
+          console.error('Re-trim failed:', err);
         } finally {
-          btn.classList.remove('running');
-          btn.textContent = '✂ Trim';
+          btn.classList.remove('running'); btn.textContent = '✂ Trim';
         }
       });
 
-      // ── Remove BG (per-card, AI) ──
+      // Per-card AI background removal
       card.querySelector('.btn-card-bgr').addEventListener('click', async (e) => {
         const btn = e.currentTarget;
         if (bgrState !== 'ready' || !bgRemoveFn) return;
-        btn.classList.add('running');
-        btn.textContent = '…removing…';
-
+        btn.classList.add('running'); btn.textContent = '…removing…';
         let newImgSrc;
         try {
-          const bgBlob  = await bgRemoveFn(job.file);
-          newImgSrc     = URL.createObjectURL(bgBlob);
-          const newImg  = await loadImage(newImgSrc);
-
-          // Update job state before resolving output (hasBgr forces non-JPEG)
-          job.img    = newImg;
+          const bgBlob = await bgRemoveFn(job.file);
+          newImgSrc = URL.createObjectURL(bgBlob);
+          const newImg = await loadImage(newImgSrc);
+          job.img = newImg;
           job.hasBgr = true;
-          resolveJobOutput(job); // updates mime/ext/outName, sets newImg._mime
-
-          // Re-scan bounds after BG removal using per-card colour settings
+          resolveJobOutput(job);
           const color = hexToRgb(card.querySelector('.card-trim-color').value);
-          const tol   = Number(card.querySelector('.card-trim-tol').value);
-          job.bounds  = await scanBounds(newImg, 'color', color, tol);
-
+          const tol = Number(card.querySelector('.card-trim-tol').value);
+          job.bounds = await scanBounds(newImg, 'color', color, tol);
           applyRenderToCard(job);
         } catch (err) {
           console.error('Per-card BGR error:', err);
           btn.textContent = '✗ Failed';
-          setTimeout(() => {
-            btn.textContent = '✦ Remove BG';
-            btn.classList.remove('running');
-          }, 2500);
+          setTimeout(() => { btn.classList.remove('running'); btn.textContent = '✦ Remove BG'; }, 2500);
           return;
         } finally {
           if (newImgSrc) URL.revokeObjectURL(newImgSrc);
         }
-
-        btn.classList.remove('running');
-        btn.textContent = '✦ Remove BG';
+        btn.classList.remove('running'); btn.textContent = '✦ Remove BG';
       });
 
+      attachShareListener(card, job);
       return card;
     }
-
-
-    // ═══════════════════════════════════════════════════════════════
-    // 7. RENDER HELPERS
-    // ═══════════════════════════════════════════════════════════════
-
-    function renderCrop(img, bounds, pad) {
-      const srcX = Math.max(0, bounds.left   - pad);
-      const srcY = Math.max(0, bounds.top    - pad);
-      const srcR = Math.min(img.naturalWidth  - 1, bounds.right  + pad);
-      const srcB = Math.min(img.naturalHeight - 1, bounds.bottom + pad);
-      const w    = srcR - srcX + 1;
-      const h    = srcB - srcY + 1;
-
-      const out  = document.createElement('canvas');
-      out.width  = w;
-      out.height = h;
-      const octx = out.getContext('2d');
-
-      if (img._mime === 'image/jpeg') {
-        octx.fillStyle = '#ffffff';
-        octx.fillRect(0, 0, w, h);
-      }
-
-      octx.drawImage(img, srcX, srcY, w, h, 0, 0, w, h);
-      return { dataURL: out.toDataURL(img._mime), w, h, srcX, srcY };
-    }
-
-
-    // ═══════════════════════════════════════════════════════════════
-    // 8. DOWNLOAD ALL AS ZIP
-    // ═══════════════════════════════════════════════════════════════
-
-    async function downloadAll() {
-      const doneJobs = [...jobs.values()].filter(j => j.status === 'done' && j.card);
-      if (!doneJobs.length) return;
-
-      const btn = document.getElementById('btn-download-all');
-      btn.textContent = '⏳ Zipping…';
-      btn.disabled    = true;
-
-      try {
-        const zip = new JSZip();
-        for (const job of doneJobs) {
-          const dataURL = job.card.querySelector('.img-crop').src;
-          const blob    = await dataURLtoBlob(dataURL);
-          zip.file(job.outName, blob);
-        }
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        triggerDownload(URL.createObjectURL(zipBlob), 'crop2bounds_results.zip');
-      } finally {
-        btn.textContent = '⬇ Download all as ZIP';
-        btn.disabled    = false;
-      }
-    }
-
-
-    // ═══════════════════════════════════════════════════════════════
-    // 9. UTILITIES
-    // ═══════════════════════════════════════════════════════════════
 
     function createPlaceholderCard(filename) {
       const card = document.createElement('div');
       card.className = 'result-card';
       card.innerHTML = `
-        <div class="result-header">
-          <span class="filename">${escHtml(filename)}</span>
-        </div>
+        <div class="result-header"><span class="filename">${escHtml(filename)}</span></div>
         <div class="card-processing"><span class="spinner"></span>Processing…</div>`;
       return card;
     }
@@ -1650,56 +1287,166 @@
     }
 
     function buildErrorCard(name, msg) {
-      const div = document.createElement('div');
-      div.className = 'result-card';
-      div.innerHTML = `<div class="result-header"><span class="filename">${escHtml(name)}</span></div>
-                       <p class="error-msg">✗ ${escHtml(msg || 'Unknown error')}</p>`;
-      return div;
+      const card = document.createElement('div');
+      card.className = 'result-card card-error';
+      card.textContent = `✕ ${name}: ${msg}`;
+      return card;
     }
 
-    function loadImage(src) {
-      return new Promise((resolve, reject) => {
-        const img  = new Image();
-        img.onload  = () => resolve(img);
-        img.onerror = () => reject(new Error('Failed to decode image'));
-        img.src     = src;
+
+    // ── Batch ZIP ──
+    document.getElementById('btn-download-all').addEventListener('click', async () => {
+      const doneJobs = [...jobs.values()].filter(j => j.status === 'done' && j.card);
+      if (!doneJobs.length) return;
+      const btn = document.getElementById('btn-download-all');
+      btn.textContent = '⏳ Zipping…';
+      btn.disabled = true;
+      try {
+        const zip = new JSZip();
+        for (const job of doneJobs) {
+          const dataURL = job.card.querySelector('.img-crop').src;
+          zip.file(job.outName, await dataURLtoBlob(dataURL));
+        }
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        triggerDownload(URL.createObjectURL(zipBlob), 'crop2bounds_results.zip');
+      } finally {
+        btn.textContent = '⬇ Download all as ZIP';
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById('btn-toolbar-clear').addEventListener('click', clearAll);
+
+
+    // ═══════════════════════════════════════════════════════════════
+    // 8. SHARE IN / OUT (native on Android, Web Share API fallback)
+    // ═══════════════════════════════════════════════════════════════
+    let CapSharePlugin = null;
+    (async () => {
+      try {
+        const sh = await import('https://unpkg.com/@capacitor/share@6.0.0/dist/index.esm.js');
+        CapSharePlugin = sh.Share;
+      } catch (e) { /* browser — Web Share fallback */ }
+    })();
+
+    async function checkSharedIntent() {
+      try {
+        const { App } = await import('https://unpkg.com/@capacitor/app@6.0.0/dist/index.esm.js');
+        App.addListener('appUrlOpen', ({ url }) => { if (url) handleSharedUri(url); });
+        const launch = await App.getLaunchUrl();
+        if (launch?.url) handleSharedUri(launch.url);
+      } catch (e) { /* not in Capacitor */ }
+    }
+
+    async function handleSharedUri(uri) {
+      const banner = document.getElementById('share-banner');
+      banner.style.display = 'block';
+      try {
+        const { Filesystem } = await import('https://unpkg.com/@capacitor/filesystem@6.0.0/dist/index.esm.js');
+        const result = await Filesystem.readFile({ path: uri });
+        const ext = (uri.split('.').pop() || 'png').toLowerCase();
+        const mimes = { png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', webp:'image/webp', gif:'image/gif', bmp:'image/bmp', avif:'image/avif' };
+        const mime = mimes[ext] || 'image/png';
+        const bytes = atob(result.data);
+        const arr = new Uint8Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+        const blob = new Blob([arr], { type: mime });
+        const fname = uri.split('/').pop() || ('shared.' + ext);
+        addFiles([new File([blob], fname, { type: mime })]);
+      } catch (e) {
+        console.error('Share receive failed:', e);
+        statusEl.textContent = '✗ Could not read shared image';
+      }
+    }
+
+    checkSharedIntent();
+
+    function attachShareListener(card, job) {
+      card.querySelector('.btn-share').addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        const dataUrl = card.querySelector('.img-crop').src;
+        const fname = card.dataset.outName;
+        btn.textContent = '…';
+        try {
+          const blob = await dataURLtoBlob(dataUrl);
+          const file = new File([blob], fname, { type: blob.type });
+          if (CapSharePlugin) {
+            const { Filesystem, Directory } = await import('https://unpkg.com/@capacitor/filesystem@6.0.0/dist/index.esm.js');
+            const b64 = dataUrl.split(',')[1];
+            await Filesystem.writeFile({ path: fname, data: b64, directory: Directory.Cache });
+            const { uri } = await Filesystem.getUri({ path: fname, directory: Directory.Cache });
+            await CapSharePlugin.share({ title: 'Crop2Bounds result', url: uri });
+          } else if (navigator.share && navigator.canShare?.({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Crop2Bounds result' });
+          } else {
+            triggerDownload(dataUrl, fname);
+          }
+        } catch (err) {
+          if (err?.name !== 'AbortError') {
+            // Graceful degradation: try Web Share, then download.
+            try {
+              const blob = await dataURLtoBlob(dataUrl);
+              const file = new File([blob], fname, { type: blob.type });
+              if (navigator.share && navigator.canShare?.({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'Crop2Bounds result' });
+              } else {
+                triggerDownload(dataUrl, fname);
+              }
+            } catch (e2) {
+              if (e2?.name !== 'AbortError') triggerDownload(dataUrl, fname);
+            }
+          }
+        }
+        btn.textContent = '↑ Share';
       });
     }
 
-    function getPadding() {
-      if (!optPadding.checked) return 0;
-      return Math.max(0, parseInt(paddingNum.value, 10) || 0);
+
+    // ═══════════════════════════════════════════════════════════════
+    // 9. UTILITIES
+    // ═══════════════════════════════════════════════════════════════
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Could not load image'));
+        img.src = src;
+      });
     }
 
     function hexToRgb(hex) {
+      const h = hex.replace('#', '');
       return {
-        r: parseInt(hex.slice(1,3), 16),
-        g: parseInt(hex.slice(3,5), 16),
-        b: parseInt(hex.slice(5,7), 16),
+        r: parseInt(h.substring(0, 2), 16),
+        g: parseInt(h.substring(2, 4), 16),
+        b: parseInt(h.substring(4, 6), 16),
       };
     }
 
     function triggerDownload(href, filename) {
       const a = document.createElement('a');
-      a.href = href; a.download = filename; a.click();
+      a.href = href; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
     }
 
     function dataURLtoBlob(dataURL) {
       return fetch(dataURL).then(r => r.blob());
     }
 
-    function flashCopied(btn, origLabel) {
-      btn.textContent = '✓ Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = origLabel; btn.classList.remove('copied'); }, 2000);
+    function flashCopied(btn, label) {
+      const orig = btn.textContent;
+      btn.textContent = label;
+      setTimeout(() => { btn.textContent = orig; }, 1600);
     }
 
     function escHtml(str) {
-      return String(str)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;')
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Initial UI state
+    renderInputList();
+    updateProcessButton();
   </script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "appId": "com.crop2bounds.app",
+  "appName": "Crop2Bounds",
+  "webDir": ".",
+  "android": {
+    "backgroundColor": "#0c0f14"
+  },
+  "plugins": {
+    "App": {
+      "launchUrl": "crop2bounds://"
+    }
+  }
+}
