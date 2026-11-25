@@ -15,7 +15,7 @@
 | **Share image TO app** (from Gallery, Files, etc.) | ✅ |
 | **Share result OUT** (Android native share sheet) | ✅ |
 | Download / ZIP | ✅ |
-| AI background removal | ✅ optional, on-device |
+| AI background removal | ✅<br>optional, on-device |
 
 ---
 
