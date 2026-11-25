@@ -7,7 +7,7 @@
 ## What you get
 
 | Feature | Status |
-|---|---|
+|---|:---:|
 | Crop to transparency bounds | ✅ |
 | Crop to color bounds (color trim) | ✅ |
 | Padding control | ✅ |
