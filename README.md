@@ -14,7 +14,7 @@
 | **Output format select**<br>_(PNG / WebP / JPG / match input)_ | ✅ |
 | **Share image TO app**<br>_(from Gallery, Files, etc.)_ | ✅ |
 | **Share result OUT**<br>_(Android native share sheet)_ | ✅ |
-| **Download options:**<br>_per image / ZIP all processed images | ✅ |
+| **Download options:**<ul><li>per image</li><li>ZIP all processed images</li></ul> | ✅ |
 | AI background removal<br>_(optional, on-device)_ | ✅ |
 
 ---
